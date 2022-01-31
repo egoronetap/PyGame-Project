@@ -1,9 +1,12 @@
-SCREEN_WIDTH = 500
-SCREEN_HEIGHT = 800
+SCREEN_WIDTH = 700
+SCREEN_HEIGHT = 700
 
 SCREEN_TITLE = 'Супер игра 228'
 
-DCT_OF_POS = {}
-LST_OF_POS = list()
+STAGE = 'Меню'
 
-FLAG = True
+DB = 'db/scores.db'
+
+STATUS = False
+
+NAME = ''
