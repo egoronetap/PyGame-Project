@@ -247,8 +247,8 @@ class Authorization:
                     self.draw(190, SCREEN_HEIGHT - 55, 'Данное имя уже занято', (255, 255, 255), font_size=60)
                     flag = False
             if flag:
-                records = cur.execute(f'''INSERT INTO results('name','password')
-                VALUES('{self.text}', '{self.text1}')''').fetchall()
+                cur.execute(f'''INSERT INTO results('name','password','balance','best_score') 
+                VALUES('{self.text}', '{self.text1}', 0, 0)''').fetchall()
 
                 cn.commit()
                 cn.close()
