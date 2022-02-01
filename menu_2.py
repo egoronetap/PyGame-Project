@@ -31,7 +31,7 @@ class IntroductionView:
         self.draw(SCREEN_WIDTH // 16, SCREEN_HEIGHT // 18, 'Название игры', (0, 255, 255), font_size=120, rect=True)
         self.draw(SCREEN_WIDTH // 3, SCREEN_HEIGHT // 4, 'Играть', (255, 255, 255), font_size=90, rect=True)
         self.draw(SCREEN_WIDTH // 4, SCREEN_HEIGHT // 4 + SCREEN_HEIGHT // 7,
-                  'Настройки', (255, 255, 255), font_size=90, rect=True)
+                  'Магазин', (255, 255, 255), font_size=90, rect=True)
         self.draw(SCREEN_WIDTH // 4 - 10, SCREEN_HEIGHT // 3 + 145,
                   'Результаты', (255, 255, 255), font_size=90, rect=True)
         self.draw(SCREEN_WIDTH // 3 + 5, SCREEN_HEIGHT // 14 * 10 - 20, 'Выйти',
@@ -64,8 +64,8 @@ class IntroductionView:
                 if i[0] <= mouse[0] <= i[2] - 10 and i[1] <= mouse[1] <= i[3] - 10:
                     if i[4] == 'Выйти':
                         escape()
-                    elif i[4] == 'Настройки':
-                        constants.STAGE = 'Настройки'
+                    elif i[4] == 'Магазин':
+                        constants.STAGE = 'Магазин'
                         Settings()
                     elif i[4] == 'Войти в аккаунт':
                         constants.STAGE = 'Войти в аккаунт'
@@ -73,13 +73,15 @@ class IntroductionView:
                     elif i[4] == 'Результаты':
                         constants.STAGE = 'Результаты'
                         Results()
+                    elif i[4] == 'Играть':
+                        constants.STAGE = 'Играть'
 
 
 class Settings:
     def __init__(self):
-        screen.fill((34, 2, 74))
+        # screen.fill((34, 2, 74))
         self.list_of_pos = list()
-        self.option_menu()
+        # self.option_menu()
 
     def draw(self, x, y, message, color=(255, 255, 255), font_size=30, rect=False):
         font = pygame.font.Font(None, font_size)
@@ -90,7 +92,7 @@ class Settings:
             self.list_of_pos.append([x - 10, y - 10, text.get_width() + 20 + x, text.get_height() + 20 + y, message])
 
     def option_menu(self):
-        self.draw(SCREEN_WIDTH // 6, SCREEN_HEIGHT // 18, 'Настройки', (255, 0, 0), font_size=120, rect=True)
+        self.draw(SCREEN_WIDTH // 6, SCREEN_HEIGHT // 18, 'Магазин', (255, 0, 0), font_size=120, rect=True)
         self.draw(SCREEN_WIDTH // 20, SCREEN_HEIGHT - (SCREEN_HEIGHT // 12), 'Назад',
                   (255, 255, 255), font_size=60, rect=True)
         self.list_of_pos.pop(0)
