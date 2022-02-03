@@ -8,6 +8,8 @@ from constants import *
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
+user_name = ''
+
 # sound1 = pygame.mixer.Sound('Sounds/Blip_Select.wav')
 # pygame.mixer.music.load('Sounds/Boulevard Depo - X2.mp3')
 # pygame.mixer.music.play()
@@ -41,11 +43,11 @@ class IntroductionView:
         self.draw(SCREEN_WIDTH - (SCREEN_WIDTH // 3), SCREEN_HEIGHT - (SCREEN_HEIGHT // 14),
                   'Войти в аккаунт', (255, 255, 255), font_size=40, rect=True)
         self.list_of_pos.pop(0)
-        if not constants.STATUS:
+        if str(user_name) == '':
             self.draw(SCREEN_WIDTH // 20, SCREEN_HEIGHT - (SCREEN_HEIGHT // 14), 'Вы не зарегистрированы',
                       (255, 255, 255), font_size=40)
         else:
-            self.draw(10, SCREEN_HEIGHT - 40, constants.NAME,
+            self.draw(10, SCREEN_HEIGHT - 40, str(user_name),
                       (255, 255, 255), font_size=40)
 
     def animate(self):
@@ -140,7 +142,7 @@ class Authorization:
                   'Назад', (255, 255, 255), font_size=60, rect=True)
         self.draw(SCREEN_WIDTH // 5, SCREEN_HEIGHT // 4, 'Имя пользователя', (255, 255, 255), font_size=60)
         self.draw(SCREEN_WIDTH // 3 + 10, SCREEN_HEIGHT // 2 - 60, 'Пароль', (255, 255, 255), font_size=60)
-        self.draw(SCREEN_WIDTH // 3 - 120, SCREEN_HEIGHT // 2 + 80, 'Войти', (255, 255, 255), font_size=80, rect=True)
+        self.draw(SCREEN_WIDTH // 3 - 125, SCREEN_HEIGHT // 2 + 80, 'Войти', (255, 255, 255), font_size=80, rect=True)
         self.draw(SCREEN_WIDTH // 3 + 80, SCREEN_HEIGHT // 2 + 80, 'Создать', (255, 255, 255), font_size=80, rect=True)
         self.list_of_pos.pop(0)
 
@@ -231,6 +233,7 @@ class Authorization:
             self.active1 = False
 
     def register(self):
+        global user_name
         pygame.draw.rect(screen, (34, 2, 74), (190, SCREEN_HEIGHT - 55, 700, 300))
         print(f'Your name is {self.text}')
         print(f'Your password is {self.text1}')
@@ -260,12 +263,12 @@ class Authorization:
                 cn.commit()
                 cn.close()
 
-                constants.NAME = self.text
+                user_name = User(self.text)
                 constants.STAGE = 'Меню'
-                constants.STATUS = True
                 IntroductionView()
 
     def log_in(self):
+        global user_name
         pygame.draw.rect(screen, (34, 2, 74), (190, SCREEN_HEIGHT - 55, 700, 300))
         if self.text1 == '' or self.text == '':
             self.draw(190, SCREEN_HEIGHT - 55, 'Не все поля заполнены', (255, 255, 255), font_size=60)
@@ -280,9 +283,8 @@ class Authorization:
             if records:
                 cn.close()
 
-                constants.NAME = self.text
+                user_name = User(self.text)
                 constants.STAGE = 'Меню'
-                constants.STATUS = True
                 IntroductionView()
             else:
                 self.draw(190, SCREEN_HEIGHT - 55, 'Неправильное имя или пароль', (255, 255, 255), font_size=45)
@@ -345,14 +347,12 @@ class Results:
         cn.close()
 
         for user in records:
-            if count == 5:
-                break
             self.draw(x_coor, y_coor, f'{str(count + 1)}){str(user[1])}:', colors[count], font_size=60)
-            x_coor += 400
-            self.draw(x_coor, y_coor, str(user[3]), colors[count], font_size=60)
-            x_coor -= 400
+            self.draw(x_coor + 400, y_coor, str(user[3]), colors[count], font_size=60)
             y_coor += 80
             count += 1
+            if count == 5:
+                break
 
     def push_btn(self):
         mouse = pygame.mouse.get_pos()
@@ -373,6 +373,14 @@ class Results:
                     pygame.draw.rect(screen, (255, 0, 0), (i[0], i[1], i[2] - i[0] - 10, i[3] - i[1] - 10), 1)
                 else:
                     pygame.draw.rect(screen, (255, 255, 255), (i[0], i[1], i[2] - i[0] - 10, i[3] - i[1] - 10), 1)
+
+
+class User:
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return self.name
 
 
 def escape():
