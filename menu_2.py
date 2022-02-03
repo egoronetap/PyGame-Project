@@ -144,6 +144,7 @@ class Authorization:
         self.draw(SCREEN_WIDTH // 3 + 10, SCREEN_HEIGHT // 2 - 60, 'Пароль', (255, 255, 255), font_size=60)
         self.draw(SCREEN_WIDTH // 3 - 125, SCREEN_HEIGHT // 2 + 80, 'Войти', (255, 255, 255), font_size=80, rect=True)
         self.draw(SCREEN_WIDTH // 3 + 80, SCREEN_HEIGHT // 2 + 80, 'Создать', (255, 255, 255), font_size=80, rect=True)
+        self.keyboard()
         self.list_of_pos.pop(0)
 
         font = pygame.font.Font(None, 60)
@@ -288,6 +289,32 @@ class Authorization:
                 IntroductionView()
             else:
                 self.draw(190, SCREEN_HEIGHT - 55, 'Неправильное имя или пароль', (255, 255, 255), font_size=45)
+
+    def keyboard(self):
+        first_line = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
+        second_line = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p']
+        third_line = ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l']
+        fourth_line = ['z', 'x', 'c', 'v', 'b', 'n', 'm']
+        x = 270
+        y = 520
+        for i in first_line:
+            self.draw(x, y, i, (255, 255, 255), font_size=45, rect=True)
+            x += 40
+        y += 47
+        x = 280
+        for i in second_line:
+            self.draw(x, y, i, (255, 255, 255), font_size=45, rect=True)
+            x += 40
+        y += 45
+        x = 290
+        for i in third_line:
+            self.draw(x, y, i, (255, 255, 255), font_size=45, rect=True)
+            x += 40
+        y += 45
+        x = 300
+        for i in fourth_line:
+            self.draw(x, y, i, (255, 255, 255), font_size=45, rect=True)
+            x += 40
 
     def animate(self):
         mouse = pygame.mouse.get_pos()
