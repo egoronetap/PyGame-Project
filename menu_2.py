@@ -17,6 +17,7 @@ class IntroductionView:
     def __init__(self):
         self.list_of_pos = list()
         screen.fill((34, 2, 74))
+        pygame.display.set_caption('Binary Disaster')
         self.start()
 
     def draw(self, x, y, message, color=(255, 255, 255), font_size=30, rect=False):
@@ -28,9 +29,10 @@ class IntroductionView:
             self.list_of_pos.append([x - 10, y - 10, text.get_width() + 20 + x, text.get_height() + 20 + y, message])
 
     def start(self):
-        self.draw(SCREEN_WIDTH // 16, SCREEN_HEIGHT // 18, 'Название игры', (0, 255, 255), font_size=120, rect=True)
+        self.draw(SCREEN_WIDTH // 16, SCREEN_HEIGHT // 18, 'Binary disaster',
+                  (0, 255, 255), font_size=120, rect=True)
         self.draw(SCREEN_WIDTH // 3, SCREEN_HEIGHT // 4, 'Играть', (255, 255, 255), font_size=90, rect=True)
-        self.draw(SCREEN_WIDTH // 4, SCREEN_HEIGHT // 4 + SCREEN_HEIGHT // 7,
+        self.draw(SCREEN_WIDTH // 3 - 25, SCREEN_HEIGHT // 4 + SCREEN_HEIGHT // 7,
                   'Магазин', (255, 255, 255), font_size=90, rect=True)
         self.draw(SCREEN_WIDTH // 4 - 10, SCREEN_HEIGHT // 3 + 145,
                   'Результаты', (255, 255, 255), font_size=90, rect=True)
@@ -249,8 +251,11 @@ class Authorization:
                     self.draw(190, SCREEN_HEIGHT - 55, 'Данное имя уже занято', (255, 255, 255), font_size=60)
                     flag = False
             if flag:
-                cur.execute(f'''INSERT INTO results('name','password','balance','best_score') 
-                VALUES('{self.text}', '{self.text1}', 0, 0)''').fetchall()
+                ids = list(cur.execute("SELECT id FROM results"))
+                id = ids[-1][0] + 1 if ids else 0
+                cur.execute(f'''INSERT INTO results VALUES({id}, '{self.text}', '{self.text1}', 0, 0, False, False, 
+                False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, 
+                False, False)''').fetchall()
 
                 cn.commit()
                 cn.close()
@@ -340,7 +345,7 @@ class Results:
         cn.close()
 
         for user in records:
-            if count == 6:
+            if count == 5:
                 break
             self.draw(x_coor, y_coor, f'{str(count + 1)}){str(user[1])}:', colors[count], font_size=60)
             x_coor += 400
