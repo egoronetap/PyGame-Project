@@ -1,8 +1,7 @@
 import pygame
 import sqlite3
-from my_functions import load_image, game_font, terminate
+from my_functions import load_image, game_font, terminate, create_coin_sprite
 from constants2 import *
-import constants
 
 pygame.init()
 
@@ -15,11 +14,11 @@ class StoreScreen:
         self.backgrs = list(self.cn.cursor().execute(f"SELECT asia, forest, green_street, house, idk, leaves, "
                                                      f"mountain, sky, night_forest, night_water, river, "
                                                      f"romantic_forest, street, sunset, sunrise FROM results "
-                                                     f"WHERE name='{self.username}'").fetchall()[0])
+                                                     f"WHERE name='{username}'").fetchall()[0])
         self.backgr_imgs = ['asia', 'forest', 'green_street', 'house', 'idk', 'leaves', 'mountain', 'sky',
                             'night_forest', 'night_water', 'river', 'romantic_forest', 'street', 'sunset', 'sunrise']
         self.fonts = list(self.cn.cursor().execute(f"SELECT Mistral, Chiller, Jokerman, Harrington "
-                                                   f"FROM results WHERE name='{self.username}'").fetchall()[0])
+                                                   f"FROM results WHERE name='{username}'").fetchall()[0])
         self.fonts_names = ['Mistral', 'Chiller', 'Jokerman', 'Harrington']
         self.coin_img = load_image('lil_coins.png', -1)
         self.sprites = self.current_sprite = None
@@ -28,8 +27,9 @@ class StoreScreen:
 
     def render(self, screen):
         if not self.sprites:
-            self.create_coin_sprites((40, 43), WIDTH - WIDTH * 0.08, HEIGHT * 0.03)
-            self.create_coin_sprites((70, 75), WIDTH // 2 + WIDTH // 30, HEIGHT * 0.86)
+            self.sprites = pygame.sprite.Group()
+            create_coin_sprite(WIDTH - WIDTH * 0.08, HEIGHT * 0.03, (40, 43), self.sprites)
+            create_coin_sprite(WIDTH // 2 + WIDTH // 30, HEIGHT * 0.86, (70, 75), self.sprites)
         if self.n_is_changed or not self.current_sprite:
             if self.product[1] == 'background':
                 self.create_background_sprite()
@@ -52,15 +52,6 @@ class StoreScreen:
             pygame.draw.rect(screen, (61, 40, 89), (WIDTH * 0.55, HEIGHT * 0.55, WIDTH * 0.15, HEIGHT * 0.08), 3)
             screen.blit(game_font(35, 'Mistral').render('Ой, нет',  True, (61, 40, 89)), (x - 30, y + HEIGHT * 0.11))
             screen.blit(game_font(35, 'Mistral').render('Да!!',  True, (61, 40, 89)), (x + 170, y + HEIGHT * 0.11))
-
-    def create_coin_sprites(self, img_size, x, y):
-        if not self.sprites:
-            self.sprites = pygame.sprite.Group()
-        coin_sprite = pygame.sprite.Sprite()
-        coin_sprite.image = pygame.transform.scale(self.coin_img, img_size)
-        coin_sprite.rect = coin_sprite.image.get_rect()
-        coin_sprite.rect.x, coin_sprite.rect.y = x, y
-        self.sprites.add(coin_sprite)
 
     def create_background_sprite(self):
         if self.current_sprite:
@@ -181,20 +172,22 @@ class StoreScreen:
                 self.product[0] += 1
 
 
-def store():
+def store(username):
     screen = pygame.display.set_mode(SIZE)
     pygame.display.set_caption('Добро пожаловать в магазинчик!)')
-    store_screen = StoreScreen(constants.NAME)
+    store_screen = StoreScreen(username)
     chosen_btn = None
     while True:
         fon = pygame.transform.scale(load_image('space.jpg'), (WIDTH, HEIGHT))
         screen.blit(fon, (0, 0))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                store_screen.cn.close()
                 terminate()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 return_to_menu = store_screen.get_click(event.pos, screen)
                 if return_to_menu:
+                    store_screen.cn.close()
                     return
             if event.type == pygame.MOUSEMOTION:
                 chosen_btn = store_screen.get_btn(event.pos)
@@ -204,7 +197,3 @@ def store():
         elif chosen_btn == 'exit':
             pygame.draw.rect(screen, (61, 40, 129), (0, 0, 150, 60), 2)
         pygame.display.flip()
-
-
-if __name__ == '__main__':
-    store()

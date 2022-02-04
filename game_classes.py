@@ -2,7 +2,7 @@ import pygame
 import random
 import sqlite3
 from constants2 import WIDTH, HEIGHT, DB
-from my_functions import game_font, decimal_conversion, load_image
+from my_functions import game_font, decimal_conversion, load_image, create_coin_sprite
 
 
 class Buttons:
@@ -96,21 +96,21 @@ class Buttons:
         return None
 
 
-class MovingObjects:
-    def __init__(self, from_sys, to_sys, font_name, user_id):
+class MovingObjectsAndCoins:
+    def __init__(self, username, from_sys, to_sys, font_name):
         self.from_sys, self.to_sys = from_sys, to_sys
-        self.user_id = user_id
+        self.username = username
         self.cn = sqlite3.connect(DB)
-        self.balance = self.cn.cursor().execute(f"SELECT balance FROM results WHERE id={user_id}").fetchone()[0]
+        self.balance = self.cn.cursor().execute(f"SELECT balance FROM results WHERE name='{username}'").fetchone()[0]
         self.coin_n = 8 if 4 in (from_sys, to_sys) else 5 if 8 in (from_sys, to_sys) else 3
         self.font = font_name
         self.numb_list, self.fireworks = [], []
-        self.coin_count = self.score = 0
+        self.coin_count = self.score = self.coins = 0
         self.character = None
         self.firework_sprites, self.character_sprites = pygame.sprite.Group(), pygame.sprite.Group()
         self.star_sprites, self.coin_sprite_group = pygame.sprite.Group(), pygame.sprite.Group()
         self.star_image = load_image("drawing.png", -1)
-        self.create_coin_sprite()
+        create_coin_sprite(10, 10, (34, 38), self.coin_sprite_group)
 
     def add_numb(self):
         n = random.randint(1, 255)
@@ -186,17 +186,15 @@ class MovingObjects:
             if first_animation_end:
                 del self.fireworks[0]
 
-    def create_coin_sprite(self):
-        coin_img = load_image('lil_coins.png', -1)
-        coin_sprite = pygame.sprite.Sprite()
-        coin_sprite.image = pygame.transform.scale(coin_img, (34, 38))
-        coin_sprite.rect = coin_sprite.image.get_rect()
-        coin_sprite.rect.x, coin_sprite.rect.y = 10, 10
-        self.coin_sprite_group.add(coin_sprite)
-
     def check_gameover(self):
         for i in range(len(self.numb_list)):
             if self.numb_list[i][0][1] >= HEIGHT - WIDTH // 10 - 76:
+                start_balance = self.cn.cursor().execute(f"SELECT balance FROM results "
+                                                         f"WHERE name='{self.username}'")
+                self.coins = self.balance - start_balance.fetchone()[0]
+                self.cn.cursor().execute(f"UPDATE results SET balance={self.balance} WHERE name='{self.username}'")
+                self.cn.commit()
+                self.cn.close()
                 return True
         return False
 

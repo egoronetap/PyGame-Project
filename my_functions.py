@@ -29,6 +29,15 @@ def load_image(name, color_key=None):
     return image
 
 
+def create_coin_sprite(x, y, img_size, sprites):
+    coin_img = load_image('lil_coins.png', -1)
+    coin_sprite = pygame.sprite.Sprite()
+    coin_sprite.image = pygame.transform.scale(coin_img, img_size)
+    coin_sprite.rect = coin_sprite.image.get_rect()
+    coin_sprite.rect.x, coin_sprite.rect.y = x, y
+    sprites.add(coin_sprite)
+
+
 def terminate():
     pygame.quit()
     sys.exit()

@@ -9,4 +9,3 @@ DB = 'db/scores.db'
 
 STATUS = False
 
-NAME = ''

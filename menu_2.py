@@ -1,20 +1,17 @@
 import pygame
-
 import sqlite3
-
 import constants
 from constants import *
-
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-
 # sound1 = pygame.mixer.Sound('Sounds/Blip_Select.wav')
 # pygame.mixer.music.load('Sounds/Boulevard Depo - X2.mp3')
 # pygame.mixer.music.play()
 
 
 class IntroductionView:
-    def __init__(self):
+    def __init__(self, user):
+        self.user = user
         self.list_of_pos = list()
         screen.fill((34, 2, 74))
         pygame.display.set_caption('Binary Disaster')
@@ -41,16 +38,15 @@ class IntroductionView:
         self.draw(SCREEN_WIDTH - (SCREEN_WIDTH // 3), SCREEN_HEIGHT - (SCREEN_HEIGHT // 14),
                   'Войти в аккаунт', (255, 255, 255), font_size=40, rect=True)
         self.list_of_pos.pop(0)
-        if not constants.STATUS:
+        if self.user.name == '':
             self.draw(SCREEN_WIDTH // 20, SCREEN_HEIGHT - (SCREEN_HEIGHT // 14), 'Вы не зарегистрированы',
                       (255, 255, 255), font_size=40)
         else:
-            self.draw(10, SCREEN_HEIGHT - 40, constants.NAME,
+            self.draw(10, SCREEN_HEIGHT - 40, self.user.name,
                       (255, 255, 255), font_size=40)
 
     def animate(self):
         mouse = pygame.mouse.get_pos()
-
         if 0 < mouse[0] < SCREEN_WIDTH - 1 and 0 < mouse[1] < SCREEN_HEIGHT - 1:
             for i in self.list_of_pos:
                 if i[0] <= mouse[0] <= i[2] - 10 and i[1] <= mouse[1] <= i[3] - 10:
@@ -60,7 +56,6 @@ class IntroductionView:
 
     def push_btn(self):
         mouse = pygame.mouse.get_pos()
-
         if 0 < mouse[0] < SCREEN_WIDTH - 1 and 0 < mouse[1] < SCREEN_HEIGHT - 1:
             for i in self.list_of_pos:
                 if i[0] <= mouse[0] <= i[2] - 10 and i[1] <= mouse[1] <= i[3] - 10:
@@ -68,50 +63,33 @@ class IntroductionView:
                         escape()
                     elif i[4] == 'Магазин':
                         constants.STAGE = 'Магазин'
-                        Settings()
+                        Settings(self.user)
                     elif i[4] == 'Войти в аккаунт':
                         constants.STAGE = 'Войти в аккаунт'
-                        Authorization()
+                        Authorization(self.user)
                     elif i[4] == 'Результаты':
                         constants.STAGE = 'Результаты'
-                        Results()
+                        Results(self.user)
                     elif i[4] == 'Играть':
                         constants.STAGE = 'Играть'
 
 
 class Settings:
-    def __init__(self):
-        # screen.fill((34, 2, 74))
+    def __init__(self, user):
+        self.user = user
         self.list_of_pos = list()
-        # self.option_menu()
-
-    def draw(self, x, y, message, color=(255, 255, 255), font_size=30, rect=False):
-        font = pygame.font.Font(None, font_size)
-        text = font.render(message, True, color)
-        screen.blit(text, (x, y))
-        if rect:
-            pygame.draw.rect(screen, color, (x - 10, y - 10, text.get_width() + 20, text.get_height() + 20), 1)
-            self.list_of_pos.append([x - 10, y - 10, text.get_width() + 20 + x, text.get_height() + 20 + y, message])
-
-    def option_menu(self):
-        self.draw(SCREEN_WIDTH // 6, SCREEN_HEIGHT // 18, 'Магазин', (255, 0, 0), font_size=120, rect=True)
-        self.draw(SCREEN_WIDTH // 20, SCREEN_HEIGHT - (SCREEN_HEIGHT // 12), 'Назад',
-                  (255, 255, 255), font_size=60, rect=True)
-        self.list_of_pos.pop(0)
 
     def push_btn(self):
         mouse = pygame.mouse.get_pos()
-
         if 0 < mouse[0] < SCREEN_WIDTH - 1 and 0 < mouse[1] < SCREEN_HEIGHT - 1:
             for i in self.list_of_pos:
                 if i[0] <= mouse[0] <= i[2] - 10 and i[1] <= mouse[1] <= i[3] - 10:
                     if i[4] == 'Назад':
                         constants.STAGE = 'Меню'
-                        IntroductionView()
+                        IntroductionView(self.user)
 
     def animate(self):
         mouse = pygame.mouse.get_pos()
-
         if 0 < mouse[0] < SCREEN_WIDTH - 1 and 0 < mouse[1] < SCREEN_HEIGHT - 1:
             for i in self.list_of_pos:
                 if i[0] <= mouse[0] <= i[2] - 10 and i[1] <= mouse[1] <= i[3] - 10:
@@ -121,8 +99,9 @@ class Settings:
 
 
 class Authorization:
-    def __init__(self):
+    def __init__(self, user):
         screen.fill((34, 2, 74))
+        self.user = user
         self.list_of_pos = list()
         self.auth_menu()
 
@@ -140,10 +119,10 @@ class Authorization:
                   'Назад', (255, 255, 255), font_size=60, rect=True)
         self.draw(SCREEN_WIDTH // 5, SCREEN_HEIGHT // 4, 'Имя пользователя', (255, 255, 255), font_size=60)
         self.draw(SCREEN_WIDTH // 3 + 10, SCREEN_HEIGHT // 2 - 60, 'Пароль', (255, 255, 255), font_size=60)
-        self.draw(SCREEN_WIDTH // 3 - 120, SCREEN_HEIGHT // 2 + 80, 'Войти', (255, 255, 255), font_size=80, rect=True)
+        self.draw(SCREEN_WIDTH // 3 - 125, SCREEN_HEIGHT // 2 + 80, 'Войти', (255, 255, 255), font_size=80, rect=True)
         self.draw(SCREEN_WIDTH // 3 + 80, SCREEN_HEIGHT // 2 + 80, 'Создать', (255, 255, 255), font_size=80, rect=True)
+        self.keyboard()
         self.list_of_pos.pop(0)
-
         font = pygame.font.Font(None, 60)
         clock = pygame.time.Clock()
         self.input_box = pygame.Rect(100, 220, 460, 60)
@@ -157,7 +136,6 @@ class Authorization:
         self.text = ''
         self.text1 = ''
         done = False
-
         while not done and constants.STAGE == 'Войти в аккаунт':
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -188,7 +166,6 @@ class Authorization:
                             self.text1 = self.text1[:-1]
                         else:
                             self.text1 += event.unicode
-
             # Render the current text.
             if constants.STAGE == 'Войти в аккаунт':
                 pygame.draw.rect(screen, (34, 2, 74), (100, 220, 700, 60))
@@ -212,7 +189,6 @@ class Authorization:
                 # Blit the input_box rect.
                 pygame.draw.rect(screen, color, self.input_box, 2)
                 pygame.draw.rect(screen, color1, self.input_box1, 2)
-
                 pygame.display.flip()
                 clock.tick(30)
 
@@ -234,16 +210,13 @@ class Authorization:
         pygame.draw.rect(screen, (34, 2, 74), (190, SCREEN_HEIGHT - 55, 700, 300))
         print(f'Your name is {self.text}')
         print(f'Your password is {self.text1}')
-
         if self.text1 == '' or self.text == '':
             self.draw(190, SCREEN_HEIGHT - 55, 'Не все поля заполнены', (255, 255, 255), font_size=60)
         else:
             flag = True
             pygame.draw.rect(screen, (34, 2, 74), (190, SCREEN_HEIGHT - 55, 700, 300))
             cn = sqlite3.connect(DB)
-
             cur = cn.cursor()
-
             records = cur.execute(f'''SELECT name FROM results''').fetchall()
             for i in records:
                 print(self.text == i[0])
@@ -256,14 +229,11 @@ class Authorization:
                 cur.execute(f'''INSERT INTO results VALUES({id}, '{self.text}', '{self.text1}', 0, 0, False, False, 
                 False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, 
                 False, False)''').fetchall()
-
                 cn.commit()
                 cn.close()
-
-                constants.NAME = self.text
+                self.user.name = self.text
                 constants.STAGE = 'Меню'
-                constants.STATUS = True
-                IntroductionView()
+                IntroductionView(self.user)
 
     def log_in(self):
         pygame.draw.rect(screen, (34, 2, 74), (190, SCREEN_HEIGHT - 55, 700, 300))
@@ -273,23 +243,44 @@ class Authorization:
             flag = False
             pygame.draw.rect(screen, (34, 2, 74), (190, SCREEN_HEIGHT - 55, 700, 300))
             cn = sqlite3.connect(DB)
-
             cur = cn.cursor()
-
             records = cur.execute(f'''SELECT name FROM results WHERE password="{self.text1}"''').fetchall()
             if records:
                 cn.close()
-
-                constants.NAME = self.text
+                self.user.name = self.text
                 constants.STAGE = 'Меню'
-                constants.STATUS = True
-                IntroductionView()
+                IntroductionView(self.user)
             else:
                 self.draw(190, SCREEN_HEIGHT - 55, 'Неправильное имя или пароль', (255, 255, 255), font_size=45)
 
+    def keyboard(self):
+        first_line = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
+        second_line = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p']
+        third_line = ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l']
+        fourth_line = ['z', 'x', 'c', 'v', 'b', 'n', 'm']
+        x = 270
+        y = 520
+        for i in first_line:
+            self.draw(x, y, i, (255, 255, 255), font_size=45, rect=True)
+            x += 40
+        y += 47
+        x = 280
+        for i in second_line:
+            self.draw(x, y, i, (255, 255, 255), font_size=45, rect=True)
+            x += 40
+        y += 45
+        x = 290
+        for i in third_line:
+            self.draw(x, y, i, (255, 255, 255), font_size=45, rect=True)
+            x += 40
+        y += 45
+        x = 300
+        for i in fourth_line:
+            self.draw(x, y, i, (255, 255, 255), font_size=45, rect=True)
+            x += 40
+
     def animate(self):
         mouse = pygame.mouse.get_pos()
-
         if 0 < mouse[0] < SCREEN_WIDTH - 1 and 0 < mouse[1] < SCREEN_HEIGHT - 1:
             for i in self.list_of_pos:
                 if i[0] <= mouse[0] <= i[2] - 10 and i[1] <= mouse[1] <= i[3] - 10:
@@ -299,13 +290,12 @@ class Authorization:
 
     def push_btn(self):
         mouse = pygame.mouse.get_pos()
-
         if 0 < mouse[0] < SCREEN_WIDTH - 1 and 0 < mouse[1] < SCREEN_HEIGHT - 1:
             for i in self.list_of_pos:
                 if i[0] <= mouse[0] <= i[2] - 10 and i[1] <= mouse[1] <= i[3] - 10:
                     if i[4] == 'Назад':
                         constants.STAGE = 'Меню'
-                        IntroductionView()
+                        IntroductionView(self.user)
                     if i[4] == 'Войти':
                         self.log_in()
                     elif i[4] == 'Создать':
@@ -313,8 +303,9 @@ class Authorization:
 
 
 class Results:
-    def __init__(self):
+    def __init__(self, user):
         screen.fill((34, 2, 74))
+        self.user = user
         self.list_of_pos = list()
         self.show_results()
 
@@ -335,44 +326,40 @@ class Results:
         self.draw(SCREEN_WIDTH // 20, SCREEN_HEIGHT - (SCREEN_HEIGHT // 12),
                   'Назад', (255, 255, 255), font_size=60, rect=True)
         self.list_of_pos.pop(0)
-
         cn = sqlite3.connect(DB)
-
         cur = cn.cursor()
-
         records = cur.execute(f'''SELECT * FROM results ORDER BY best_score DESC''').fetchall()
-
         cn.close()
-
         for user in records:
-            if count == 5:
-                break
             self.draw(x_coor, y_coor, f'{str(count + 1)}){str(user[1])}:', colors[count], font_size=60)
-            x_coor += 400
-            self.draw(x_coor, y_coor, str(user[3]), colors[count], font_size=60)
-            x_coor -= 400
+            self.draw(x_coor + 400, y_coor, str(user[3]), colors[count], font_size=60)
             y_coor += 80
             count += 1
+            if count == 5:
+                break
 
     def push_btn(self):
         mouse = pygame.mouse.get_pos()
-
         if 0 < mouse[0] < SCREEN_WIDTH - 1 and 0 < mouse[1] < SCREEN_HEIGHT - 1:
             for i in self.list_of_pos:
                 if i[0] <= mouse[0] <= i[2] - 10 and i[1] <= mouse[1] <= i[3] - 10:
                     if i[4] == 'Назад':
                         constants.STAGE = 'Меню'
-                        IntroductionView()
+                        IntroductionView(self.user)
 
     def animate(self):
         mouse = pygame.mouse.get_pos()
-
         if 0 < mouse[0] < SCREEN_WIDTH - 1 and 0 < mouse[1] < SCREEN_HEIGHT - 1:
             for i in self.list_of_pos:
                 if i[0] <= mouse[0] <= i[2] - 10 and i[1] <= mouse[1] <= i[3] - 10:
                     pygame.draw.rect(screen, (255, 0, 0), (i[0], i[1], i[2] - i[0] - 10, i[3] - i[1] - 10), 1)
                 else:
                     pygame.draw.rect(screen, (255, 255, 255), (i[0], i[1], i[2] - i[0] - 10, i[3] - i[1] - 10), 1)
+
+
+class User:
+    def __init__(self):
+        self.name = ''
 
 
 def escape():
