@@ -77,10 +77,11 @@ class BackgroundChoice:
         return None
 
     def on_click(self, btn):
-        if btn[1] == 'done':
-            return True
-        elif btn:
-            self.chosen_backgr = btn
+        if btn:
+            if btn[1] == 'done':
+                return True
+            else:
+                self.chosen_backgr = btn
         return False
 
 
@@ -94,6 +95,7 @@ class FontChoice:
         cn.close()
         self.donebtn_info = None
         self.font_btns = []
+        self.chosen_font = None
 
     def render(self, screen):
         if not self.donebtn_info:
@@ -104,7 +106,11 @@ class FontChoice:
         if not self.font_btns:
             self.create_fontbtns()
         for btn in self.font_btns:
-
+            text = game_font(WIDTH // 8, btn[1]).render(btn[1], True, (255, 255, 255))
+            screen.blit(text, (btn[0][0] + 10, btn[0][1]))
+            pygame.draw.rect(screen, (255, 255, 255), (btn[0][0], btn[0][1], btn[0][2], btn[0][3]), 2)
+        if self.chosen_font:
+            pygame.draw.rect(screen, (76, 187, 23), self.chosen_font[0], 4)
 
     def create_fontbtns(self):
         for i in range(4):
@@ -112,7 +118,8 @@ class FontChoice:
             text = game_font(WIDTH // 8, self.fonts_names[i]).render(self.fonts_names[i], True, (255, 255, 255))
             x = WIDTH // 2 - text.get_width() // 2
             y = space * (i + 1) + 100 * i
-            self.font_btns.append([x, y, ])
+            width, height = text.get_width() + 20, text.get_height()
+            self.font_btns.append([(x - 10, y, width, height), self.fonts_names[i]])
 
     def get_click(self, mouse_pos):
         btn = self.get_btn(mouse_pos)
@@ -123,16 +130,18 @@ class FontChoice:
         text, x, y, width, height = list(self.donebtn_info)
         if x <= mouse_pos[0] <= x + width and y <= mouse_pos[1] <= y + height:
             return (x, y, width, height), 'done'
-        for i in range(4):
-            if x <= mouse_pos[0] <= x + side and y <= mouse_pos[1] <= y + side and self.backgrs[i + 4 * j]:
-                return (x, y, side, side), self.fonts_names[i + 4 * j]
+        for btn in self.font_btns:
+            if btn[0][0] <= mouse_pos[0] <= btn[0][0] + btn[0][2] and \
+                    btn[0][1] <= mouse_pos[1] <= btn[0][1] + btn[0][3]:
+                return btn
         return None
 
     def on_click(self, btn):
-        if btn[1] == 'done':
-            return True
-        elif btn:
-            self.chosen_backgr = btn
+        if btn:
+            if btn[1] == 'done':
+                return True
+            else:
+                self.chosen_font = btn
         return False
 
 
@@ -151,17 +160,19 @@ def personalization(username):
             if event.type == pygame.QUIT:
                 terminate()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if backgrounds:
-                    done = backgrounds.get_click(event.pos)
-                    if done:
-                        if backgrounds.chosen_backgr:
-                            background = backgrounds.chosen_backgr
-                            backgrounds = chosen_btn = None
-                            fonts = FontChoice(username)
+                done = current_class.get_click(event.pos)
+                if done:
+                    if backgrounds and backgrounds.chosen_backgr:
+                        background = backgrounds.chosen_backgr[1]
+                        backgrounds = chosen_btn = None
+                        fonts = FontChoice(username)
+                    if fonts and fonts.chosen_font:
+                        font = fonts.chosen_font[1]
+                        fonts = chosen_btn = None
+                        return font, background
             if event.type == pygame.MOUSEMOTION:
-                if backgrounds:
-                    if backgrounds.donebtn_info:
-                        chosen_btn = backgrounds.get_btn(event.pos)
+                if current_class.donebtn_info:
+                        chosen_btn = current_class.get_btn(event.pos)
         current_class.render(screen)
         if chosen_btn:
             pygame.draw.rect(screen, 'purple', chosen_btn[0], 2)
