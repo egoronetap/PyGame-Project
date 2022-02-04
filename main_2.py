@@ -3,6 +3,7 @@ import pygame
 from menu_2 import IntroductionView, Settings, Authorization, Results, User, escape
 from main_game import play
 from store import store
+from personalization import personalization
 
 
 def main():
@@ -35,7 +36,8 @@ def main():
                     res = Results(user)
                     res.push_btn()
                 elif constants.STAGE == 'Играть':
-                    play(user.name)
+                    font, backgr = personalization(user.name)
+                    play(user.name, font_name=font, fon_img=f'{backgr}.jpg')
                     constants.STAGE = 'Меню'
                     view = IntroductionView(user)
         pygame.display.flip()
