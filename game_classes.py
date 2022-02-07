@@ -102,7 +102,7 @@ class MovingObjectsAndCoins:
         self.username = username
         self.cn = sqlite3.connect(DB)
         self.balance = self.cn.cursor().execute(f"SELECT balance FROM results WHERE name='{username}'").fetchone()[0]
-        self.coin_n = 8 if 4 in (from_sys, to_sys) else 5 if 8 in (from_sys, to_sys) else 3
+        self.coin_n = 5 if 4 in (from_sys, to_sys) else 4 if 8 in (from_sys, to_sys) else 3
         self.font = font_name
         self.numb_list, self.fireworks = [], []
         self.coin_count = self.score = self.coins = 0

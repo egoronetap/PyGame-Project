@@ -36,8 +36,24 @@ def main():
                     res = Results(user)
                     res.push_btn()
                 elif constants.STAGE == 'Играть':
-                    font, backgr = personalization(user.name)
-                    play(user.name, font_name=font, fon_img=f'{backgr}.jpg')
+                    font, backgr, mode, difficulty = personalization(user.name)
+                    if 'из' in mode:
+                        from_sys = 2
+                        if 'шест' in difficulty:
+                            to_sys = 16
+                        elif 'вос' in difficulty:
+                            to_sys = 8
+                        else:
+                            to_sys = 4
+                    else:
+                        to_sys = 2
+                        if 'шест' in difficulty:
+                            from_sys = 16
+                        elif 'вос' in difficulty:
+                            from_sys = 8
+                        else:
+                            from_sys = 4
+                    play(user.name, font_name=font, fon_img=f'{backgr}.jpg', to_sys=to_sys, from_sys=from_sys)
                     constants.STAGE = 'Меню'
                     view = IntroductionView(user)
         pygame.display.flip()

@@ -28,9 +28,12 @@ class IntroductionView:
     def start(self):
         self.draw(SCREEN_WIDTH // 16, SCREEN_HEIGHT // 18, 'Binary disaster',
                   (0, 255, 255), font_size=120, rect=True)
-        self.draw(SCREEN_WIDTH // 3, SCREEN_HEIGHT // 4, 'Играть', (255, 255, 255), font_size=90, rect=True)
+        color = (255, 255, 255)
+        if not constants.STATUS:
+            color = (105, 105, 105)
+        self.draw(SCREEN_WIDTH // 3, SCREEN_HEIGHT // 4, 'Играть', color, font_size=90, rect=True)
         self.draw(SCREEN_WIDTH // 3 - 25, SCREEN_HEIGHT // 4 + SCREEN_HEIGHT // 7,
-                  'Магазин', (255, 255, 255), font_size=90, rect=True)
+                  'Магазин', color, font_size=90, rect=True)
         self.draw(SCREEN_WIDTH // 4 - 10, SCREEN_HEIGHT // 3 + 145,
                   'Результаты', (255, 255, 255), font_size=90, rect=True)
         self.draw(SCREEN_WIDTH // 3 + 5, SCREEN_HEIGHT // 14 * 10 - 20, 'Выйти',
@@ -50,8 +53,16 @@ class IntroductionView:
         if 0 < mouse[0] < SCREEN_WIDTH - 1 and 0 < mouse[1] < SCREEN_HEIGHT - 1:
             for i in self.list_of_pos:
                 if i[0] <= mouse[0] <= i[2] - 10 and i[1] <= mouse[1] <= i[3] - 10:
-                    pygame.draw.rect(screen, (255, 0, 0), (i[0], i[1], i[2] - i[0] - 10, i[3] - i[1] - 10), 1)
+                    if i[4] == 'Играть' or i[4] == 'Магазин':
+                        if not constants.STATUS:
+                            pygame.draw.rect(screen, (105, 105, 105), (i[0], i[1], i[2] - i[0] - 10, i[3] - i[1] - 10), 1)
+                        else:
+                            pygame.draw.rect(screen, (255, 0, 0), (i[0], i[1], i[2] - i[0] - 10, i[3] - i[1] - 10), 1)
+                    else:
+                        pygame.draw.rect(screen, (255, 0, 0), (i[0], i[1], i[2] - i[0] - 10, i[3] - i[1] - 10), 1)
                 else:
+                    if (i[4] == 'Играть' or i[4] == 'Магазин') and not constants.STATUS:
+                        continue
                     pygame.draw.rect(screen, (255, 255, 255), (i[0], i[1], i[2] - i[0] - 10, i[3] - i[1] - 10), 1)
 
     def push_btn(self):
@@ -61,7 +72,7 @@ class IntroductionView:
                 if i[0] <= mouse[0] <= i[2] - 10 and i[1] <= mouse[1] <= i[3] - 10:
                     if i[4] == 'Выйти':
                         escape()
-                    elif i[4] == 'Магазин':
+                    elif i[4] == 'Магазин' and constants.STATUS:
                         constants.STAGE = 'Магазин'
                         Settings(self.user)
                     elif i[4] == 'Войти в аккаунт':
@@ -70,7 +81,7 @@ class IntroductionView:
                     elif i[4] == 'Результаты':
                         constants.STAGE = 'Результаты'
                         Results(self.user)
-                    elif i[4] == 'Играть':
+                    elif i[4] == 'Играть' and constants.STATUS:
                         constants.STAGE = 'Играть'
 
 
@@ -233,6 +244,7 @@ class Authorization:
                 cn.close()
                 self.user.name = self.text
                 constants.STAGE = 'Меню'
+                constants.STATUS = True
                 IntroductionView(self.user)
 
     def log_in(self):
@@ -249,6 +261,7 @@ class Authorization:
                 cn.close()
                 self.user.name = self.text
                 constants.STAGE = 'Меню'
+                constants.STATUS = True
                 IntroductionView(self.user)
             else:
                 self.draw(190, SCREEN_HEIGHT - 55, 'Неправильное имя или пароль', (255, 255, 255), font_size=45)
