@@ -10,24 +10,28 @@ pygame.init()
 class Choice:
     def __init__(self):
         self.donebtn_info = self.create_done_btn()
+        self.btns = []
 
     def create_done_btn(self):
-        text = game_font(WIDTH // 14, 'Mistral').render("Готово", True, (255, 255, 255))
+        text = game_font(WIDTH // 19, 'Segoe script').render("Готово", True, (255, 255, 255))
         x, y = SIDE - text.get_width() - 50, 635
-        width, height = text.get_width() + 24, text.get_height() + 10
+        width, height = text.get_width() + 24, text.get_height() + 4
         return [text, x, y, width, height]
 
     def get_click(self, mouse_pos):
         btn = self.get_btn(mouse_pos)
-        print(btn)
         done = self.on_click(btn)
         return done
 
     def get_btn(self, mouse_pos):
         text, x, y, width, height = list(self.donebtn_info)
         if x <= mouse_pos[0] <= x + width and y <= mouse_pos[1] <= y + height:
-            print(1)
             return (x, y, width, height), 'done'
+        for btn in self.btns:
+            if btn[2] and btn[0][0] <= mouse_pos[0] <= btn[0][0] + btn[0][2] and \
+                    btn[0][1] <= mouse_pos[1] <= btn[0][1] + btn[0][3]:
+                return btn
+        return None
 
     def on_click(self, btn):
         pass
@@ -55,7 +59,7 @@ class BackgroundChoice(Choice):
                                                    self.donebtn_info[3], self.donebtn_info[4]), 1)
         screen.blit(self.donebtn_info[0], (self.donebtn_info[1] + 12, self.donebtn_info[2]))
         if self.chosen_backgr:
-            pygame.draw.rect(screen, (76, 187, 23), self.chosen_backgr[0], 5)
+            pygame.draw.rect(screen, (76, 187, 23), self.chosen_backgr[0], 3)
 
     def create_sprites(self):
         self.sprites = pygame.sprite.Group()
@@ -63,32 +67,28 @@ class BackgroundChoice(Choice):
         for i in range(4):
             for j in range(4):
                 if self.backgrs[i + 4 * j]:
-                    sprite = pygame.sprite.Sprite()
                     img = load_image(f'{self.backgr_imgs[i + 4 * j]}.jpg')
-                    sprite.image = pygame.transform.scale(img, (side, side))
-                    sprite.rect = sprite.image.get_rect()
-                    sprite.rect.x = SIDE * 0.06 + space * (i + 1) + side * i
-                    sprite.rect.y = space * (j + 1) + side * j
-                    self.sprites.add(sprite)
                 else:
-                    # ¯\_(ツ)_/¯
-                    pass
+                    img = load_image(f'clock.png', -1)
+                sprite = pygame.sprite.Sprite()
+                sprite.image = pygame.transform.scale(img, (side, side))
+                sprite.rect = sprite.image.get_rect()
+                sprite.rect.x = SIDE * 0.06 + space * (i + 1) + side * i
+                sprite.rect.y = space * (j + 1) + side * j
+                self.sprites.add(sprite)
         return
 
-    def a(self, mouse_pos):
+    def get_btn(self, mouse_pos):
         text, x, y, width, height = list(self.donebtn_info)
         if x <= mouse_pos[0] <= x + width and y <= mouse_pos[1] <= y + height:
-            print(1)
             return (x, y, width, height), 'done'
-
-    def get_btn(self, mouse_pos):
-        self.a(mouse_pos)
         side, space = SIDE * 0.187, SIDE * 0.028
         for i in range(4):
             x = SIDE * 0.06 + space * (i + 1) + side * i
             for j in range(4):
                 y = space * (j + 1) + side * j
-                if x <= mouse_pos[0] <= x + side and y <= mouse_pos[1] <= y + side and self.backgrs[i + 4 * j]:
+                if self.backgrs[i + 4 * j] and x <= mouse_pos[0] <= x + side and \
+                        y <= mouse_pos[1] <= y + side and self.backgrs[i + 4 * j]:
                     return (x, y, side, side), self.backgr_imgs[i + 4 * j]
         return None
 
@@ -108,41 +108,41 @@ class FontChoice(Choice):
         self.fonts = list(cn.cursor().execute(f"SELECT Mistral, Chiller, Jokerman, Harrington "
                                               f"FROM results WHERE name='{username}'").fetchall()[0])
         self.fonts.insert(0, 1)
-        self.fonts_names = ['Ink Free', 'Mistral', 'Chiller', 'Jokerman', 'Harrington']
+        self.fonts_names = ['Ink Free', 'Mistral', 'Jokerman', 'Chiller', 'Harrington']
         cn.close()
         self.chosen_font = None
-        self.font_btns = []
 
     def render(self, screen):
         pygame.draw.rect(screen, (255, 255, 255), (self.donebtn_info[1], self.donebtn_info[2],
                                                    self.donebtn_info[3], self.donebtn_info[4]), 1)
         screen.blit(self.donebtn_info[0], (self.donebtn_info[1] + 12, self.donebtn_info[2]))
-        if not self.font_btns:
+        if not self.btns:
             self.create_fontbtns()
-        for btn in self.font_btns:
-            text = game_font(WIDTH // 8, btn[1]).render(btn[1], True, (255, 255, 255))
+        for btn in self.btns:
+            fnt, fnt_size, clr = ('Segoe Script', WIDTH // 17, 100) if not btn[2] else (btn[1], WIDTH // 11, 255)
+            text = game_font(fnt_size, fnt).render(btn[1], True, (clr, clr, clr))
             screen.blit(text, (btn[0][0] + 10, btn[0][1]))
-            pygame.draw.rect(screen, (255, 255, 255), (btn[0][0], btn[0][1], btn[0][2], btn[0][3]), 2)
+            pygame.draw.rect(screen, (clr, clr, clr), (btn[0][0], btn[0][1], btn[0][2], btn[0][3]), 2)
         if self.chosen_font:
             pygame.draw.rect(screen, (76, 187, 23), self.chosen_font[0], 4)
 
     def create_fontbtns(self):
-        for i in range(4):
+        for i in range(5):
             if self.fonts[i]:
-                space = 30
-                text = game_font(WIDTH // 8, self.fonts_names[i]).render(self.fonts_names[i], True, (255, 255, 255))
-                x = WIDTH // 2 - text.get_width() // 2
-                y = space * (i + 1) + 100 * i
-                width, height = text.get_width() + 20, text.get_height()
-                self.font_btns.append([(x - 10, y, width, height), self.fonts_names[i]])
-
-    def get_btn(self, mouse_pos):
-        super().get_btn(mouse_pos)
-        for btn in self.font_btns:
-            if btn[0][0] <= mouse_pos[0] <= btn[0][0] + btn[0][2] and \
-                    btn[0][1] <= mouse_pos[1] <= btn[0][1] + btn[0][3]:
-                return btn
-        return None
+                is_bought = True
+                fnt = txt = self.fonts_names[i]
+                text = game_font(WIDTH // 11, fnt).render(txt, True, (255, 255, 255))
+            else:
+                is_bought = False
+                txt = 'Здесь будет ваша покупка'
+                text = game_font(WIDTH // 17, 'Segoe script').render(txt, True, (255, 255, 255))
+            space = 30 if self.fonts_names[i] not in ('Jokerman', 'Harrington') else 20
+            x = WIDTH // 2 - text.get_width() // 2
+            y = space * (i + 1) + 100 * i
+            if self.fonts_names[i] == 'Chiller':
+                y -= 25
+            width, height = text.get_width() + 20, text.get_height()
+            self.btns.append([(x - 10, y, width, height), txt, is_bought])
 
     def on_click(self, btn):
         if btn:
@@ -156,20 +156,19 @@ class FontChoice(Choice):
 class ModeChoice(Choice):
     def __init__(self):
         super().__init__()
-        self.btns = []
         self.chosen_mode = None
 
     def render(self, screen):
         pygame.draw.rect(screen, (255, 255, 255), (self.donebtn_info[1], self.donebtn_info[2],
                                                    self.donebtn_info[3], self.donebtn_info[4]), 1)
         screen.blit(self.donebtn_info[0], (self.donebtn_info[1] + 12, self.donebtn_info[2]))
-        text = game_font(WIDTH // 9, 'Mistral').render('Выберите режим игры:', True, (255, 255, 255))
+        text = game_font(WIDTH // 15, 'Segoe script').render('Выберите режим игры:', True, (255, 255, 255))
         x, y = SIDE // 2 - text.get_width() // 2, SIDE // 2 - text.get_height() // 2 - 150
         screen.blit(text, (x, y))
         if not self.btns:
             self.create_btns()
         for btn in self.btns:
-            text = game_font(WIDTH // 14, 'Mistral').render(btn[1], True, (255, 255, 255))
+            text = game_font(WIDTH // 17, 'Segoe script').render(btn[1], True, (255, 255, 255))
             screen.blit(text, (btn[0][0] + 10, btn[0][1]))
             pygame.draw.rect(screen, (255, 255, 255), (btn[0][0], btn[0][1], btn[0][2], btn[0][3]), 2)
         if self.chosen_mode:
@@ -177,20 +176,12 @@ class ModeChoice(Choice):
 
     def create_btns(self):
         txt1, txt2 = 'Перевод из двоичной сс', 'Перевод в двоичную сс'
-        text1 = game_font(WIDTH // 14, 'Mistral').render(txt1, True, (255, 255, 255))
-        text2 = game_font(WIDTH // 14, 'Mistral').render(txt2, True, (255, 255, 255))
+        text1 = game_font(WIDTH // 17, 'Segoe script').render(txt1, True, (255, 255, 255))
+        text2 = game_font(WIDTH // 17, 'Segoe script').render(txt2, True, (255, 255, 255))
         x = WIDTH // 2 - text1.get_width() // 2
         y = SIDE // 2
-        self.btns = [[(x, y - 70, text1.get_width() + 20, text1.get_height()), txt1],
-                     [(x, y + 50, text2.get_width() + 20, text1.get_height()), txt2]]
-
-    def get_btn(self, mouse_pos):
-        super().get_btn(mouse_pos)
-        for btn in self.btns:
-            if btn[0][0] <= mouse_pos[0] <= btn[0][0] + btn[0][2] and \
-                    btn[0][1] <= mouse_pos[1] <= btn[0][1] + btn[0][3]:
-                return btn
-        return None
+        self.btns = [[(x, y - 70, text1.get_width() + 20, text1.get_height()), txt1, True],
+                     [(x, y + 50, text2.get_width() + 20, text1.get_height()), txt2, True]]
 
     def on_click(self, btn):
         if btn:
@@ -204,20 +195,19 @@ class ModeChoice(Choice):
 class DifficultyChoice(Choice):
     def __init__(self):
         super().__init__()
-        self.btns = []
         self.chosen_difficulty = None
 
     def render(self, screen):
         pygame.draw.rect(screen, (255, 255, 255), (self.donebtn_info[1], self.donebtn_info[2],
                                                    self.donebtn_info[3], self.donebtn_info[4]), 1)
         screen.blit(self.donebtn_info[0], (self.donebtn_info[1] + 12, self.donebtn_info[2]))
-        text = game_font(WIDTH // 9, 'Mistral').render('Выберите сложность:', True, (255, 255, 255))
-        x, y = SIDE // 2 - text.get_width() // 2, SIDE // 2 - text.get_height() // 2 - 150
+        text = game_font(WIDTH // 14, 'Segoe script').render('Выберите сложность:', True, (255, 255, 255))
+        x, y = SIDE // 2 - text.get_width() // 2, SIDE // 2 - text.get_height() // 2 - 200
         screen.blit(text, (x, y))
         if not self.btns:
             self.create_btns()
         for btn in self.btns:
-            text = game_font(WIDTH // 14, 'Mistral').render(btn[1], True, (255, 255, 255))
+            text = game_font(WIDTH // 21, 'Segoe script').render(btn[1], True, (255, 255, 255))
             screen.blit(text, (btn[0][0] + 10, btn[0][1]))
             pygame.draw.rect(screen, (255, 255, 255), (btn[0][0], btn[0][1], btn[0][2], btn[0][3]), 2)
         if self.chosen_difficulty:
@@ -225,23 +215,15 @@ class DifficultyChoice(Choice):
 
     def create_btns(self):
         txt1, txt2, txt3 = 'Легко (четверичная сс)', 'Средне (восьмеричная сс)', 'Сложно (шестнадцатиричная сс)'
-        text1 = game_font(WIDTH // 14, 'Mistral').render(txt1, True, (255, 255, 255))
-        text2 = game_font(WIDTH // 14, 'Mistral').render(txt2, True, (255, 255, 255))
-        text3 = game_font(WIDTH // 14, 'Mistral').render(txt3, True, (255, 255, 255))
+        text1 = game_font(WIDTH // 21, 'Segoe script').render(txt1, True, (255, 255, 255))
+        text2 = game_font(WIDTH // 21, 'Segoe script').render(txt2, True, (255, 255, 255))
+        text3 = game_font(WIDTH // 21, 'Segoe script').render(txt3, True, (255, 255, 255))
         x = WIDTH // 2 - text2.get_width() // 2
-        y = SIDE // 2
-        x3 = WIDTH // 2 - text3.get_width() // 2
-        self.btns = [[(x, y - 70, text1.get_width() + 20, text1.get_height()), txt1],
-                     [(x, y + 50, text2.get_width() + 20, text1.get_height()), txt2],
-                     [(x3, y + 170, text3.get_width() + 20, text1.get_height()), txt3]]
-
-    def get_btn(self, mouse_pos):
-        super().get_btn(mouse_pos)
-        for btn in self.btns:
-            if btn[0][0] <= mouse_pos[0] <= btn[0][0] + btn[0][2] and \
-                    btn[0][1] <= mouse_pos[1] <= btn[0][1] + btn[0][3]:
-                return btn
-        return None
+        y = HEIGHT // 2 - 50
+        x3 = WIDTH // 2 - text3.get_width() // 2 - 10
+        self.btns = [[(x, y - 70, text1.get_width() + 20, text1.get_height()), txt1, True],
+                     [(x, y + 50, text2.get_width() + 20, text1.get_height()), txt2, True],
+                     [(x3, y + 170, text3.get_width() + 20, text1.get_height()), txt3, True]]
 
     def on_click(self, btn):
         if btn:
@@ -280,12 +262,12 @@ def personalization(username):
                         mode = modes.chosen_mode[1]
                         modes = chosen_btn = None
                         difficulties = DifficultyChoice()
-                    else:
+                    elif difficulties and difficulties.chosen_difficulty:
                         difficulty = difficulties.chosen_difficulty[1]
                         return font, background, mode, difficulty
             if event.type == pygame.MOUSEMOTION:
                 if current_class.donebtn_info:
-                        chosen_btn = current_class.get_btn(event.pos)
+                    chosen_btn = current_class.get_btn(event.pos)
         current_class.render(screen)
         if chosen_btn:
             pygame.draw.rect(screen, 'purple', chosen_btn[0], 2)

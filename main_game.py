@@ -11,11 +11,11 @@ def play(username, from_sys=16, to_sys=2, fon_img='space.jpg', font_name='Ink Fr
     screen = pygame.display.set_mode(SIZE)
     pygame.display.set_caption("Let's gooooo")
     if to_sys == 2:
-        frequency = 4000
-        speed = 40
+        frequency = 4500
+        speed = 35
     else:
         frequency = 7000
-        speed = 28
+        speed = 25
     MYEVENTTYPE = pygame.USEREVENT + 1  # каждые frequency миллисекунд падает новое число
     pygame.time.set_timer(MYEVENTTYPE, frequency)
     clock, firework_clock, character_clock = pygame.time.Clock(), pygame.time.Clock(), pygame.time.Clock()
