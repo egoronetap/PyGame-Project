@@ -1,5 +1,5 @@
-SCREEN_WIDTH = 700
-SCREEN_HEIGHT = 700
+SCREEN_WIDTH = 710
+SCREEN_HEIGHT = 710
 
 SCREEN_TITLE = 'Супер игра 228'
 
@@ -9,4 +9,3 @@ DB = 'db/scores.db'
 
 STATUS = False
 
-NAME = ''
