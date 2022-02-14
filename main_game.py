@@ -1,10 +1,9 @@
+# Anfisa
 import pygame
 from constants2 import SIZE, WIDTH, HEIGHT
 from my_functions import terminate, load_image
 from game_classes import Buttons, MovingObjectsAndCoins
 from gameover import gameover
-
-pygame.init()
 
 
 def play(username, from_sys=16, to_sys=2, fon_img='space.jpg', font_name='Ink Free'):
@@ -58,7 +57,3 @@ def play(username, from_sys=16, to_sys=2, fon_img='space.jpg', font_name='Ink Fr
             else:
                 return
         pygame.display.flip()
-
-
-if __name__ == '__main__':
-    play('user3')

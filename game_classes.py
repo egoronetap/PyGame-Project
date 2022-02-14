@@ -1,3 +1,4 @@
+# Anfisa
 import pygame
 import random
 import sqlite3

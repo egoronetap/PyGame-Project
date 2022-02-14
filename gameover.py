@@ -1,11 +1,10 @@
+# Anfisa
 import sqlite3
 import pygame
 import random
 from constants2 import WIDTH, HEIGHT, DB
 from my_functions import game_font, terminate, load_image, create_coin_sprite
 from game_classes import AnimatedSprite
-
-pygame.init()
 
 
 class GameOverScreen:
@@ -113,8 +112,3 @@ def gameover(username, surface, fon_img, score, coins, font_name):
         if character_clock.tick(7):
             character.update()
         pygame.display.flip()
-
-
-if __name__ == '__main__':
-    screen = pygame.display.set_mode((710, 710))
-    gameover('user3', screen, 'space.jpg', 6, 1, "Ink Free")

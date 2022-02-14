@@ -1,3 +1,4 @@
+# Egor + Anfisa (только что касается кнопки "Играть")
 import constants
 import pygame
 from menu_2 import IntroductionView, Settings, Authorization, Results, User, escape
@@ -39,20 +40,10 @@ def main():
                     font, backgr, mode, difficulty = personalization(user.name)
                     if 'из' in mode:
                         from_sys = 2
-                        if 'шест' in difficulty:
-                            to_sys = 16
-                        elif 'вос' in difficulty:
-                            to_sys = 8
-                        else:
-                            to_sys = 4
+                        to_sys = 16 if 'шест' in difficulty else 8 if 'вос' in difficulty else 4
                     else:
                         to_sys = 2
-                        if 'шест' in difficulty:
-                            from_sys = 16
-                        elif 'вос' in difficulty:
-                            from_sys = 8
-                        else:
-                            from_sys = 4
+                        from_sys = 16 if 'шест' in difficulty else 8 if 'вос' in difficulty else 4
                     play(user.name, font_name=font, fon_img=f'{backgr}.jpg', to_sys=to_sys, from_sys=from_sys)
                     constants.STAGE = 'Меню'
                     view = IntroductionView(user)

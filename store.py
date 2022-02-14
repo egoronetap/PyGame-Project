@@ -1,9 +1,8 @@
+# Anfisa
 import pygame
 import sqlite3
 from my_functions import load_image, game_font, terminate, create_coin_sprite
 from constants2 import *
-
-pygame.init()
 
 
 class StoreScreen:
@@ -11,12 +10,12 @@ class StoreScreen:
         self.username = username
         self.cn = sqlite3.connect(DB)
         self.product = [0, 'background']
-        self.backgrs = list(self.cn.cursor().execute(f"SELECT asia, forest, green_street, house, idk, leaves, "
-                                                     f"mountain, sky, night_forest, night_water, river, "
+        self.backgrs = list(self.cn.cursor().execute(f"SELECT river, asia, forest, green_street, house, idk, leaves, "
+                                                     f"mountain, sky, night_forest, night_water, "
                                                      f"romantic_forest, street, sunset, sunrise FROM results "
                                                      f"WHERE name='{username}'").fetchall()[0])
-        self.backgr_imgs = ['asia', 'forest', 'green_street', 'house', 'idk', 'leaves', 'mountain', 'sky',
-                            'night_forest', 'night_water', 'river', 'romantic_forest', 'street', 'sunset', 'sunrise']
+        self.backgr_imgs = ['river', 'asia', 'forest', 'green_street', 'house', 'idk', 'leaves', 'mountain', 'sky',
+                            'night_forest', 'night_water', 'romantic_forest', 'street', 'sunset', 'sunrise']
         self.fonts = list(self.cn.cursor().execute(f"SELECT Mistral, Chiller, Jokerman, Harrington "
                                                    f"FROM results WHERE name='{username}'").fetchall()[0])
         self.fonts_names = ['Mistral', 'Chiller', 'Jokerman', 'Harrington']
@@ -82,7 +81,8 @@ class StoreScreen:
     def add_text(self, screen):
         if self.product[1] == 'background':
             price = 'Куплено' if self.backgrs[self.product[0]] else \
-                '60' if self.backgr_imgs[self.product[0]] in ('romantic_forest', 'asia', 'green_street') else '50'
+                '60' if self.backgr_imgs[self.product[0]] in ('romantic_forest', 'asia', 'green_street') else \
+                    '5' if self.backgr_imgs[self.product[0]] == 'river' else '50'
         else:
             price = 'Куплено' if self.fonts[self.product[0]] else \
                 '25' if self.fonts_names[self.product[0]] in ('Jokerman', 'Harrington') else '20'
@@ -134,7 +134,8 @@ class StoreScreen:
 
     def on_click(self, btn, screen):
         if self.product[1] == 'background':
-            n = 60 if self.backgr_imgs[self.product[0]] in ('romantic_forest', 'asia', 'green_street') else 50
+            n = 60 if self.backgr_imgs[self.product[0]] in ('romantic_forest', 'asia', 'green_street') else \
+                5 if self.backgr_imgs[self.product[0]] == 'river' else 50
         else:
             n = 25 if self.fonts_names[self.product[0]] in ('Jokerman', 'Harrington') else 20
         if btn == 'buy':

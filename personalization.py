@@ -1,10 +1,8 @@
+# Anfisa
 import sqlite3
-
 import pygame
 from constants2 import *
 from my_functions import load_image, terminate, game_font
-
-pygame.init()
 
 
 class Choice:
@@ -41,13 +39,13 @@ class BackgroundChoice(Choice):
     def __init__(self, username):
         super().__init__()
         cn = sqlite3.connect(DB)
-        self.backgrs = list(cn.cursor().execute(f"SELECT asia, forest, green_street, house, idk, leaves, "
-                                                f"mountain, sky, night_forest, night_water, river, "
+        self.backgrs = list(cn.cursor().execute(f"SELECT river, asia, forest, green_street, house, idk, leaves, "
+                                                f"mountain, sky, night_forest, night_water, "
                                                 f"romantic_forest, street, sunset, sunrise FROM results "
                                                 f"WHERE name='{username}'").fetchall()[0])
         self.backgrs.insert(0, 1)
-        self.backgr_imgs = ['space', 'asia', 'forest', 'green_street', 'house', 'idk', 'leaves', 'mountain', 'sky',
-                            'night_forest', 'night_water', 'river', 'romantic_forest', 'street', 'sunset', 'sunrise']
+        self.backgr_imgs = ['space', 'river', 'asia', 'forest', 'green_street', 'house', 'idk', 'leaves', 'mountain',
+                            'sky', 'night_forest', 'night_water', 'romantic_forest', 'street', 'sunset', 'sunrise']
         cn.close()
         self.sprites = self.chosen_backgr = None
 
@@ -272,7 +270,3 @@ def personalization(username):
         if chosen_btn:
             pygame.draw.rect(screen, 'purple', chosen_btn[0], 2)
         pygame.display.flip()
-
-
-if __name__ == '__main__':
-    personalization('user3')
