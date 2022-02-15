@@ -1,8 +1,9 @@
-# Egor + Anfisa (только User и его применение)
+# Egor + Anfisa (User и его применение + исправление некоторых багов Егора)
 import pygame
 import sqlite3
 import constants
 from constants import *
+from my_functions import terminate
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
@@ -69,7 +70,7 @@ class IntroductionView:
             for i in self.list_of_pos:
                 if i[0] <= mouse[0] <= i[2] - 10 and i[1] <= mouse[1] <= i[3] - 10:
                     if i[4] == 'Выйти':
-                        escape()
+                        terminate()  # твоя великолепная функция с единственной строчкой exit() не работает в exe
                     elif i[4] == 'Магазин' and constants.STATUS:
                         constants.STAGE = 'Магазин'
                         Settings(self.user)
@@ -147,7 +148,7 @@ class Authorization:
         while not done and constants.STAGE == 'Войти в аккаунт':
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    quit()
+                    terminate()
                 if event.type == pygame.MOUSEMOTION and constants.STAGE == 'Войти в аккаунт':
                     self.animate()
                 if event.type == pygame.MOUSEBUTTONDOWN and constants.STAGE == 'Войти в аккаунт':
@@ -160,7 +161,6 @@ class Authorization:
                 if event.type == pygame.KEYDOWN and constants.STAGE == 'Войти в аккаунт':
                     if self.active:
                         if event.key == pygame.K_RETURN:
-                            print(self.text)
                             self.text = ''
                         elif event.key == pygame.K_BACKSPACE:
                             self.text = self.text[:-1]
@@ -168,7 +168,6 @@ class Authorization:
                             self.text += event.unicode
                     if self.active1:
                         if event.key == pygame.K_RETURN:
-                            print(self.text1)
                             self.text1 = ''
                         elif event.key == pygame.K_BACKSPACE:
                             self.text1 = self.text1[:-1]
@@ -216,8 +215,6 @@ class Authorization:
 
     def register(self):
         pygame.draw.rect(screen, (34, 2, 74), (190, SCREEN_HEIGHT - 55, 700, 300))
-        print(f'Your name is {self.text}')
-        print(f'Your password is {self.text1}')
         if self.text1 == '' or self.text == '':
             self.draw(190, SCREEN_HEIGHT - 55, 'Не все поля заполнены', (255, 255, 255), font_size=60)
         else:
@@ -227,7 +224,6 @@ class Authorization:
             cur = cn.cursor()
             records = cur.execute(f'''SELECT name FROM results''').fetchall()
             for i in records:
-                print(self.text == i[0])
                 if self.text == i[0]:
                     self.draw(190, SCREEN_HEIGHT - 55, 'Данное имя уже занято', (255, 255, 255), font_size=60)
                     flag = False
@@ -253,7 +249,9 @@ class Authorization:
             pygame.draw.rect(screen, (34, 2, 74), (190, SCREEN_HEIGHT - 55, 700, 300))
             cn = sqlite3.connect(DB)
             cur = cn.cursor()
-            records = cur.execute(f'''SELECT name FROM results WHERE password="{self.text1}"''').fetchall()
+            # добавила условие, потому что НЕДОСТАТОЧНО ПРАВИЛЬНОГО ПАРОЛЯ (логин как бы тоже правильный должен быть)
+            records = cur.execute(f'''SELECT name FROM results WHERE password="{self.text1}" 
+            AND name="{self.text}"''').fetchall()
             if records:
                 cn.close()
                 self.user.name = self.text
@@ -344,7 +342,3 @@ class Results:
 class User:
     def __init__(self):
         self.name = ''
-
-
-def escape():
-    exit()

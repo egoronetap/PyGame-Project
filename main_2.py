@@ -1,7 +1,8 @@
 # Egor + Anfisa (только что касается кнопки "Играть")
 import constants
 import pygame
-from menu_2 import IntroductionView, Settings, Authorization, Results, User, escape
+from menu_2 import IntroductionView, Settings, Authorization, Results, User
+from my_functions import terminate
 from main_game import play
 from store import store
 from personalization import personalization
@@ -13,7 +14,7 @@ def main():
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                escape()
+                terminate()
             if event.type == pygame.MOUSEMOTION:
                 if constants.STAGE == 'Меню':
                     view.animate()
